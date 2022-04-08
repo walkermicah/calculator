@@ -37,15 +37,36 @@ function displayNumbers(num) {
   console.log(storage);
 }
 
+//add decimal to display value (only once)
 function addDecimal() {
   const { displayValue } = storage;
 
   if (!displayValue.includes(".")) {
     storage.displayValue += ".";
   }
+}
 
-  //change decimal from number class
-  //if clicks a decimal, allow only 1 (make decimal a number key)
+//when user chooses an operator:
+//if no num1, store operator, store display numbers as num1
+function setOperator(op) {
+  const { num1, displayValue } = storage;
+
+  if (!num1) {
+    storage.operator = op;
+    storage.num1 = displayValue;
+    storage.needNum2 = true;
+    console.log(storage);
+  }
+
+  //if ready to operate, assign display numbers to num2, operate, display total, assign the total to num1 and clear num2
+  if (storage.needNum2 === false) {
+    storage.num2 = displayValue;
+    storage.needNum2 = true;
+    operate(storage.num1, storage.num2, storage.operator);
+    storage.num1 = storage.displayValue;
+    storage.num2 = null;
+    storage.operator = op;
+  }
 }
 
 //operate using stored num1, num2 and operator
@@ -56,19 +77,19 @@ function operate(num1, num2, operator) {
   const n1 = Number(num1);
   const n2 = Number(num2);
 
-  if (operator === "+") {
+  if (operator === "add") {
     total = n1 + n2;
   }
 
-  if (operator === "-") {
+  if (operator === "subtract") {
     total = n1 - n2;
   }
 
-  if (operator === "*") {
+  if (operator === "multiply") {
     total = n1 * n2;
   }
 
-  if (operator === "/") {
+  if (operator === "divide") {
     if (n2 === 0) {
       total = "∞";
       return total;
@@ -76,8 +97,8 @@ function operate(num1, num2, operator) {
       total = n1 / n2;
     }
   }
-
-  return Math.round(total * 1000) / 1000;
+  storage.displayValue = Math.round(total * 1000) / 1000;
+  updateScreen();
 }
 
 //Event listener for calculator buttons
@@ -89,12 +110,12 @@ calculatorBtns.addEventListener("click", (e) => {
       displayNumbers(target.id);
     }
 
-    if (target.classList.contains("operator")) {
-      console.log(`Operator: ${target.id}`);
-    }
-
     if (target.classList.contains("decimal")) {
       addDecimal();
+    }
+
+    if (target.classList.contains("operator")) {
+      setOperator(target.id);
     }
 
     if (target.classList.contains("equals")) {
@@ -111,19 +132,6 @@ calculatorBtns.addEventListener("click", (e) => {
     updateScreen();
   }
 });
-
-// if user clicks an operator: event listener: setOperator(target.id) // above: setOperator(operator)
-//  if no num1
-// store numbers on the screen as num1
-// // store operator
-//waitingnum2 = true
-//clear displayValue
-// if num1 & waitingnum2=false
-//  // store screencontent as num2 and call operate(num1, num2, op)
-// displayValue = total
-//num1=total
-//num2 cleared
-//waitingnum2=true
 
 //equals button:
 // if no op, do nothing
