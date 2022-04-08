@@ -6,8 +6,8 @@ const storage = {
   operator: null,
   num1: null,
   num2: null,
-  readyForNum2: false,
-  displayValue: 0,
+  needNum2: false,
+  displayValue: "0",
 };
 
 //update screen with the stored displayValue
@@ -15,8 +15,38 @@ function updateScreen() {
   const { displayValue } = storage;
   calculatorScreen.textContent = displayValue;
 }
-
 updateScreen();
+
+//display numbers on screen when number buttons are pressed
+//if displayValue is 0, overwrite it. if not, add to it
+//if need num 2, overwrite displayValue
+function displayNumbers(num) {
+  let { displayValue } = storage;
+  let { needNum2 } = storage;
+
+  if (displayValue === "0") {
+    storage.displayValue = num;
+  } else {
+    storage.displayValue += num;
+  }
+
+  if (needNum2) {
+    storage.displayValue = num;
+    storage.needNum2 = false;
+  }
+  console.log(storage);
+}
+
+function addDecimal() {
+  const { displayValue } = storage;
+
+  if (!displayValue.includes(".")) {
+    storage.displayValue += ".";
+  }
+
+  //change decimal from number class
+  //if clicks a decimal, allow only 1 (make decimal a number key)
+}
 
 //operate using stored num1, num2 and operator
 //if user divides by 0, display infinity symbol
@@ -26,19 +56,19 @@ function operate(num1, num2, operator) {
   const n1 = Number(num1);
   const n2 = Number(num2);
 
-  if (operator === "add") {
+  if (operator === "+") {
     total = n1 + n2;
   }
 
-  if (operator === "subtract") {
+  if (operator === "-") {
     total = n1 - n2;
   }
 
-  if (operator === "multiply") {
+  if (operator === "*") {
     total = n1 * n2;
   }
 
-  if (operator === "divide") {
+  if (operator === "/") {
     if (n2 === 0) {
       total = "∞";
       return total;
@@ -56,11 +86,15 @@ calculatorBtns.addEventListener("click", (e) => {
 
   if (target.matches("button")) {
     if (target.classList.contains("number")) {
-      console.log(`Number: ${target.id}`);
+      displayNumbers(target.id);
     }
 
     if (target.classList.contains("operator")) {
       console.log(`Operator: ${target.id}`);
+    }
+
+    if (target.classList.contains("decimal")) {
+      addDecimal();
     }
 
     if (target.classList.contains("equals")) {
@@ -78,15 +112,7 @@ calculatorBtns.addEventListener("click", (e) => {
   }
 });
 
-//displayNumbers()
-//if user clicks a number:
-//[[if waitingfornum2 = true, overwrite displayValue with number entered and set waiting=false]]
-// get number using textcontent of the button
-//check length: if longer than x, write nothing
-//if displayValue is 0, overwrite it. if not, add to it
-//if clicks a decimal, allow only 1 (make decimal a number key)
-
-// if user clicks an operator:
+// if user clicks an operator: event listener: setOperator(target.id) // above: setOperator(operator)
 //  if no num1
 // store numbers on the screen as num1
 // // store operator
