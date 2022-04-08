@@ -18,6 +18,38 @@ function updateScreen() {
 
 updateScreen();
 
+//operate using stored num1, num2 and operator
+//if user divides by 0, display infinity symbol
+//return total, rounding to 3 decimal places
+function operate(num1, num2, operator) {
+  let total;
+  const n1 = Number(num1);
+  const n2 = Number(num2);
+
+  if (operator === "add") {
+    total = n1 + n2;
+  }
+
+  if (operator === "subtract") {
+    total = n1 - n2;
+  }
+
+  if (operator === "multiply") {
+    total = n1 * n2;
+  }
+
+  if (operator === "divide") {
+    if (n2 === 0) {
+      total = "∞";
+      return total;
+    } else {
+      total = n1 / n2;
+    }
+  }
+
+  return Math.round(total * 1000) / 1000;
+}
+
 //Event listener for calculator buttons
 calculatorBtns.addEventListener("click", (e) => {
   const { target } = e;
@@ -46,12 +78,7 @@ calculatorBtns.addEventListener("click", (e) => {
   }
 });
 
-//operate:
-// if/else for each operator
-// convert strings to numbers before calculating
-//if divide by 0, display infinity symbol
-// return total as a rounded number (cap decimals and display long answers as exponents)
-
+//displayNumbers()
 //if user clicks a number:
 //[[if waitingfornum2 = true, overwrite displayValue with number entered and set waiting=false]]
 // get number using textcontent of the button
