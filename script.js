@@ -12,8 +12,7 @@ const storage = {
 
 //update screen with the stored displayValue
 function updateScreen() {
-  const { displayValue } = storage;
-  calculatorScreen.textContent = displayValue;
+  calculatorScreen.textContent = storage.displayValue;
 }
 updateScreen();
 
@@ -21,16 +20,13 @@ updateScreen();
 //if displayValue is 0, overwrite it. if not, add to it
 //if need num 2, overwrite displayValue
 function displayNumbers(num) {
-  let { displayValue } = storage;
-  let { needNum2 } = storage;
-
-  if (displayValue === "0") {
+  if (storage.displayValue === "0") {
     storage.displayValue = num;
   } else {
     storage.displayValue += num;
   }
 
-  if (needNum2) {
+  if (storage.needNum2) {
     storage.displayValue = num;
     storage.needNum2 = false;
   }
@@ -39,33 +35,50 @@ function displayNumbers(num) {
 
 //add decimal to display value (only once)
 function addDecimal() {
-  const { displayValue } = storage;
-
-  if (!displayValue.includes(".")) {
+  if (!storage.displayValue.includes(".")) {
     storage.displayValue += ".";
   }
 }
 
 //when user chooses an operator:
-//if no num1, store operator, store display numbers as num1
+//if no num1: store operator, store display number as num1
 function setOperator(op) {
-  const { num1, displayValue } = storage;
-
-  if (!num1) {
+  if (!storage.num1) {
     storage.operator = op;
-    storage.num1 = displayValue;
+    storage.num1 = storage.displayValue;
     storage.needNum2 = true;
-    console.log(storage);
   }
 
-  //if ready to operate, assign display numbers to num2, operate, display total, assign the total to num1 and clear num2
-  if (storage.needNum2 === false) {
-    storage.num2 = displayValue;
+  //if ready to operate: assign display number to num2, call operate function to perform calculation and display total, assign the total to num1 and clear num2
+  if (!storage.needNum2) {
+    storage.num2 = storage.displayValue;
     storage.needNum2 = true;
     operate(storage.num1, storage.num2, storage.operator);
     storage.num1 = storage.displayValue;
     storage.num2 = null;
     storage.operator = op;
+  }
+
+  if (storage.needNum2) {
+    storage.operator = op;
+  }
+  console.log(storage);
+}
+
+//when equals button is pressed:
+//must have operator and num1
+//if no num2, store display value. if have num2 (user is pressing equals more than once in a row), keep it the same
+function getTotal() {
+  console.log(storage);
+  if (storage.operator && storage.num1) {
+    if (!storage.num2) {
+      storage.num2 = storage.displayValue;
+    }
+
+    operate(storage.num1, storage.num2, storage.operator);
+    storage.num1 = storage.displayValue;
+    storage.needNum2 = true;
+    console.log(storage);
   }
 }
 
@@ -101,54 +114,55 @@ function operate(num1, num2, operator) {
   updateScreen();
 }
 
+//reset storage object when user presses clear
+function clearScreen() {
+  storage.operator = null;
+  storage.num1 = null;
+  storage.num2 = null;
+  storage.needNum2 = false;
+  storage.displayValue = "0";
+}
+
+// delete button:
+function deleteScreen() {
+  if (storage.needNum2) {
+    storage.operator = null;
+  } else if (!storage.num1) {
+    storage.displayValue = "0";
+  } else {
+    storage.displayValue = storage.num1;
+    storage.needNum2 = true;
+  }
+}
+
 //Event listener for calculator buttons
 calculatorBtns.addEventListener("click", (e) => {
-  const { target } = e;
-
-  if (target.matches("button")) {
-    if (target.classList.contains("number")) {
-      displayNumbers(target.id);
+  if (e.target.matches("button")) {
+    if (e.target.classList.contains("number")) {
+      displayNumbers(e.target.id);
     }
 
-    if (target.classList.contains("decimal")) {
+    if (e.target.classList.contains("decimal")) {
       addDecimal();
     }
 
-    if (target.classList.contains("operator")) {
-      setOperator(target.id);
+    if (e.target.classList.contains("operator")) {
+      setOperator(e.target.id);
     }
 
-    if (target.classList.contains("equals")) {
-      console.log("Equals");
+    if (e.target.classList.contains("equals")) {
+      getTotal();
     }
 
-    if (target.classList.contains("clear")) {
-      console.log("Clear");
+    if (e.target.classList.contains("clear")) {
+      clearScreen();
     }
-    if (target.classList.contains("delete")) {
-      console.log("Delete");
+    if (e.target.classList.contains("delete")) {
+      deleteScreen();
     }
 
     updateScreen();
   }
 });
 
-//equals button:
-// if no op, do nothing
-//
-// if op:
-// num2 = screencontent
-// operate (num1, num2, op)
-// displayValue = total
-//num1=total
-//num2 stays same
-//waitingfornum2 = true
-
-// clear button:
-// reset all values of object to initial StaticRange
-
-// delete button:
-// if waitingnum2 = false, delete num2
-// if waitingnum2 = true, delete op
-
-//add keyboard support
+//keyboard support
