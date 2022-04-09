@@ -1,8 +1,7 @@
-const calculator = document.querySelector(".calculator");
-const calculatorScreen = calculator.querySelector(".calculator__screen");
-const calculatorBtns = calculator.querySelector(".calculator__btns");
+const calculatorScreen = document.querySelector(".calculator__screen");
+const calculatorBtns = document.querySelector(".calculator__btns");
 
-const storage = {
+const c = {
   operator: null,
   num1: null,
   num2: null,
@@ -12,7 +11,7 @@ const storage = {
 
 //update screen with the stored displayValue
 function updateScreen() {
-  calculatorScreen.textContent = storage.displayValue;
+  calculatorScreen.textContent = c.displayValue;
 }
 updateScreen();
 
@@ -20,65 +19,62 @@ updateScreen();
 //if displayValue is 0, overwrite it. if not, add to it
 //if need num 2, overwrite displayValue
 function displayNumbers(num) {
-  if (storage.displayValue === "0") {
-    storage.displayValue = num;
+  if (c.displayValue === "0") {
+    c.displayValue = num;
   } else {
-    storage.displayValue += num;
+    c.displayValue += num;
   }
 
-  if (storage.needNum2) {
-    storage.displayValue = num;
-    storage.needNum2 = false;
+  if (c.needNum2) {
+    c.displayValue = num;
+    c.needNum2 = false;
   }
-  console.log(storage);
 }
 
 //add decimal to display value (only once)
 function addDecimal() {
-  if (!storage.displayValue.includes(".")) {
-    storage.displayValue += ".";
+  if (!c.displayValue.includes(".")) {
+    c.displayValue += ".";
   }
 }
 
 //when user chooses an operator:
 //if no num1: store operator, store display number as num1
 function setOperator(op) {
-  if (!storage.num1) {
-    storage.operator = op;
-    storage.num1 = storage.displayValue;
-    storage.needNum2 = true;
+  if (!c.num1) {
+    c.operator = op;
+    c.num1 = c.displayValue;
+    c.needNum2 = true;
   }
 
   //if ready to operate: assign display number to num2, call operate function to perform calculation and display total, assign the total to num1 and clear num2
-  if (!storage.needNum2) {
-    storage.num2 = storage.displayValue;
-    storage.needNum2 = true;
-    operate(storage.num1, storage.num2, storage.operator);
-    storage.num1 = storage.displayValue;
-    storage.num2 = null;
-    storage.operator = op;
+  if (!c.needNum2) {
+    c.num2 = c.displayValue;
+    c.needNum2 = true;
+    operate(c.num1, c.num2, c.operator);
+    c.num1 = c.displayValue;
+    c.num2 = null;
+    c.operator = op;
   }
 
-  if (storage.needNum2) {
-    storage.operator = op;
+  if (c.needNum2) {
+    c.operator = op;
   }
-  console.log(storage);
 }
 
 //when equals button is pressed:
 //must have operator and num1
 //if no num2, store display value. if have num2 (user is pressing equals more than once in a row), keep it the same
 function getTotal() {
-  console.log(storage);
-  if (storage.operator && storage.num1) {
-    if (!storage.num2) {
-      storage.num2 = storage.displayValue;
+  console.log(c);
+  if (c.operator && c.num1) {
+    if (!c.num2) {
+      c.num2 = c.displayValue;
     }
 
-    operate(storage.num1, storage.num2, storage.operator);
-    storage.num1 = storage.displayValue;
-    storage.needNum2 = true;
-    console.log(storage);
+    operate(c.num1, c.num2, c.operator);
+    c.num1 = c.displayValue;
+    c.needNum2 = true;
   }
 }
 
@@ -90,19 +86,19 @@ function operate(num1, num2, operator) {
   const n1 = Number(num1);
   const n2 = Number(num2);
 
-  if (operator === "add") {
+  if (operator === "+") {
     total = n1 + n2;
   }
 
-  if (operator === "subtract") {
+  if (operator === "-") {
     total = n1 - n2;
   }
 
-  if (operator === "multiply") {
+  if (operator === "*") {
     total = n1 * n2;
   }
 
-  if (operator === "divide") {
+  if (operator === "/") {
     if (n2 === 0) {
       total = "∞";
       return total;
@@ -110,28 +106,28 @@ function operate(num1, num2, operator) {
       total = n1 / n2;
     }
   }
-  storage.displayValue = Math.round(total * 1000) / 1000;
+  c.displayValue = Math.round(total * 1000) / 1000;
   updateScreen();
 }
 
-//reset storage object when user presses clear
+//reset c object when user presses clear
 function clearScreen() {
-  storage.operator = null;
-  storage.num1 = null;
-  storage.num2 = null;
-  storage.needNum2 = false;
-  storage.displayValue = "0";
+  c.operator = null;
+  c.num1 = null;
+  c.num2 = null;
+  c.needNum2 = false;
+  c.displayValue = "0";
 }
 
 // delete button:
 function deleteScreen() {
-  if (storage.needNum2) {
-    storage.operator = null;
-  } else if (!storage.num1) {
-    storage.displayValue = "0";
+  if (c.needNum2) {
+    c.operator = null;
+  } else if (!c.num1) {
+    c.displayValue = "0";
   } else {
-    storage.displayValue = storage.num1;
-    storage.needNum2 = true;
+    c.displayValue = c.num1;
+    c.needNum2 = true;
   }
 }
 
@@ -166,3 +162,42 @@ calculatorBtns.addEventListener("click", (e) => {
 });
 
 //keyboard support
+document.addEventListener("keydown", (e) => {
+  const key = e.key;
+
+  switch (key) {
+    case "1":
+    case "2":
+    case "3":
+    case "4":
+    case "5":
+    case "6":
+    case "7":
+    case "8":
+    case "9":
+    case "0":
+      displayNumbers(key);
+      break;
+    case ".":
+      addDecimal();
+      break;
+    case "+":
+    case "-":
+    case "*":
+    case "/":
+      setOperator(key);
+      break;
+    case "=":
+    case "Enter":
+      getTotal();
+      break;
+    case "c":
+      clearScreen();
+      break;
+    case "d":
+      deleteScreen();
+      break;
+  }
+
+  updateScreen();
+});
