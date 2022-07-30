@@ -89,3 +89,20 @@ body {
 .btn:active {
   background-color: black;
 }
+
+/* MEDIA QUERIES
+
+850px  */
+@media only screen and (max-width: 53.125em) {
+  .calculator {
+    width: 60%;
+  }
+}
+
+/* 450px  */
+@media only screen and (max-width: 28.125em) {
+  .calculator {
+    width: 95%;
+    height: 95%;
+  }
+}
